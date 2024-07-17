@@ -1,5 +1,5 @@
 import { TrailingIcon, resolveType } from '@ui/models/ordering/utilities';
-import { ReactNative as RN, React } from '@metro/common';
+import { ReactNative as RN } from '@metro/common';
 import type { Addon, Manager } from '@typings/managers';
 import { useSettingsStore } from '@api/storage';
 import { Checkbox } from '@ui/components/misc';
@@ -77,53 +77,60 @@ const radioItems = [
 
 const sourceRadioItems = radioItems.filter(x => ['default', 'identifier', 'name', 'description'].includes(x.id));
 
-export default (entity: Manager | Fn<Manager>, settings: ReturnType<typeof useSettingsStore>) => [
-	(resolveType(entity) === 'source' ? sourceRadioItems : radioItems).map(item => {
-		const { icon, label, ...rest } = item;
+export default (entity: Manager | Fn<Manager>, settings: ReturnType<typeof useSettingsStore>) => {
+	const type = resolveType(entity);
+	const items = ['source', 'fonts'].includes(type) ? sourceRadioItems : radioItems;
 
-		const extra = {
-			IconComponent: () => <TrailingIcon
-				selected={settings.get(`${resolveType(entity)}.order`, 'default') === item.id}
-				source={icon}
-			/>,
+	console.log(type, items);
 
-			action() {
-				settings.set(`${resolveType(entity)}.order`, item.id);
+	return [
+		items.map(item => {
+			const { icon, label, ...rest } = item;
+
+			const extra = {
+				IconComponent: () => <TrailingIcon
+					selected={settings.get(`${type}.order`, 'default') === item.id}
+					source={icon}
+				/>,
+
+				action() {
+					settings.set(`${type}.order`, item.id);
+				},
+
+				get label() {
+					return Strings[label];
+				}
+			};
+
+			return {
+				...rest,
+				...extra
+			};
+		}),
+		[{
+			id: 'reversed',
+			label: 'Reversed',
+			IconComponent: () => {
+				// Requires its own independent setting store declaration or it won't re-render
+				const settings = useSettingsStore('unbound');
+
+				return <RN.TouchableOpacity
+					onPress={() => settings.toggle(`${type}.reversed`, false)}
+					style={{ transform: [{ scale: 0.8 }, { translateX: 2 }] }}
+				>
+					<Checkbox.FormCheckbox
+						checked={settings.get(`${type}.reversed`, false)}
+					/>
+				</RN.TouchableOpacity>;
 			},
 
-			get label() {
-				return Strings[label];
+			action() {
+				settings.toggle(`${type}.reversed`, false);
+			},
+
+			ordering(addons: Addon[]) {
+				return addons;
 			}
-		};
-
-		return {
-			...rest,
-			...extra
-		};
-	}),
-	[{
-		id: 'reversed',
-		label: 'Reversed',
-		IconComponent: () => {
-			// Requires its own independent setting store declaration or it won't re-render
-			const settings = useSettingsStore('unbound');
-
-			return <RN.TouchableOpacity
-				onPress={() => settings.toggle(`${resolveType(entity)}.reversed`, false)}
-				style={{ transform: [{ scale: 0.8 }, { translateX: 2 }] }}
-			>
-				<Checkbox.FormCheckbox
-					checked={settings.get(`${resolveType(entity)}.reversed`, false)}
-				/>
-			</RN.TouchableOpacity>;
-		},
-
-		action() {
-			settings.toggle(`${resolveType(entity)}.reversed`, false);
-		},
-
-		ordering(addons: Addon[]) {
-			return addons;
-		}
-	}]
-];
+		}]
+	];
+};

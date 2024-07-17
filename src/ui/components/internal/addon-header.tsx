@@ -10,7 +10,7 @@ type HeaderRightProps = {
 	type: Parameters<typeof getItems>[0];
 	settings: Parameters<typeof getItems>[1];
 	onPress: Fn;
-	margin?: boolean
+	margin?: boolean;
 };
 
 export default function HeaderRight({ type, settings, onPress, margin = false }: HeaderRightProps) {

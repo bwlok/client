@@ -45,6 +45,7 @@ const config = {
 				if (!out) return this.warn('(IIFE) - Output file not found.');
 
 				const file = out.pop();
+				if (!file) return this.warn('(IIFE) - No file found.');
 
 				const output = bundle[file];
 				if (!output) return this.warn('(IIFE) - Output file not found.');

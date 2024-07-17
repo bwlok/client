@@ -1,6 +1,5 @@
 import { registerSettings } from '@utilities/registerSettings';
 import type { BuiltIn } from '@typings/core/builtins';
-import { ReactNative as RN } from '@metro/common';
 import { ClientName, Keys } from '@constants';
 import { Redesign } from '@metro/components';
 import * as Managers from '@managers';
@@ -8,12 +7,12 @@ import { Strings } from '@api/i18n';
 import { Icons } from '@api/assets';
 
 
-import Design from '@ui/settings/design';
+import { TrailingText } from '@ui/components/misc';
+import type { Manager } from '@typings/managers';
 import General from '@ui/settings/general';
 import Plugins from '@ui/settings/plugins';
 import Sources from '@ui/settings/sources';
-import { TrailingText, useFormStyles } from '@ui/components/misc';
-import type { Manager } from '@typings/managers';
+import Design from '@ui/settings/design';
 
 type CustomScreenProps = {
 	title: string;
@@ -29,13 +28,16 @@ function useAddonsCount(...managers: Manager[]) {
 	return managers.reduce((total, manager) => total + Managers[manager].useEntities().length, 0);
 }
 
-function AddonCount({ managers, manipulator }: { managers: Manager[], manipulator?: Fn }) {
+function AddonCount({ managers, manipulator }: { managers: Manager[], manipulator?: Fn; }) {
 	const amount = useAddonsCount(...managers);
+	const display = typeof manipulator === 'function' ? manipulator(amount) : amount;
+
+	if (display === 0) {
+		return;
+	}
 
 	return <TrailingText>
-		{Strings.UNBOUND_ADDON_INSTALLED_AMOUNT.format({
-			amount: typeof manipulator === 'function' ? manipulator(amount) : amount
-		})}
+		{Strings.UNBOUND_ADDON_INSTALLED_AMOUNT.format({ amount: display })}
 	</TrailingText>;
 }
 
@@ -65,7 +67,7 @@ export function initialize() {
 				keywords: [Strings.UNBOUND_THEMES, Strings.UNBOUND_ICONS, Strings.UNBOUND_FONTS],
 				screen: Design,
 				// Themes + Icons installed accounting for the default icon pack
-				useTrailing: () => <AddonCount managers={['Themes', 'Icons']} manipulator={(amount) => amount - 1}/>
+				useTrailing: () => <AddonCount managers={['Themes', 'Icons']} manipulator={(amount) => amount - 1} />
 			},
 			{
 				title: 'UNBOUND_SOURCES',
@@ -87,11 +89,11 @@ export function initialize() {
 						navigation.setOptions({ title });
 					});
 
-					return <Component { ...props } />;
+					return <Component {...props} />;
 				}
 			}
 		]
 	});
 }
 
-export function shutdown() {}
+export function shutdown() { }

@@ -55,7 +55,7 @@ export default function Design() {
 
 			navigation.setOptions({
 				headerRight: () => <HeaderRight
-					type={() => items[settings.get('designPageIndex', 0)].id}
+					type={() => items[settings.get('designPageIndex', 0)]?.id}
 					settings={settings}
 					onPress={() => {
 						const index = settings.get('designPageIndex', 0);

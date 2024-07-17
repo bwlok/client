@@ -1,9 +1,11 @@
+import Fonts from '@managers/fonts';
 import Themes from '@managers/themes';
 
 export const data = {
 	cache: [],
 	patchedMoment: false,
 	patchedThemes: false,
+	patchedFonts: false,
 	patchedNativeRequire: false,
 	listeners: new Set<(mdl: any) => void>()
 };
@@ -93,5 +95,15 @@ export function handleFixes(mdl) {
 		}
 
 		data.patchedThemes = true;
+	}
+
+	if (!data.patchedFonts && mdl.Fonts) {
+		try {
+			Fonts.initialize(mdl);
+		} catch (e) {
+			console.error('Failed to patch fonts:', e.message);
+		}
+
+		data.patchedFonts = true;
 	}
 }

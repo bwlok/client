@@ -6,7 +6,10 @@ import * as managers from '@managers';
 
 export const resolveType = (entity: Manager | Fn<Manager>) => {
 	const resolved = typeof entity === 'function' ? entity() : entity;
-	return managers[resolved].type;
+	const manager = managers[resolved];
+	if (!manager || !manager.type) return;
+
+	return manager.type;
 };
 
 const useStyles = StyleSheet.createStyles({

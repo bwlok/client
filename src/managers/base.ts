@@ -11,6 +11,7 @@ const { LayoutAnimation: { configureNext, Presets } } = ReactNative;
 export enum ManagerType {
 	Plugins = 'plugin',
 	Themes = 'theme',
+	Fonts = 'fonts',
 	Icons = 'pack',
 	Sources = 'source'
 }
@@ -182,7 +183,7 @@ class Manager extends EventEmitter {
 		const bundle = await this.fetchBundle(url, manifest, signal, setState);
 
 		this.logger.debug('Saving...');
-		this.save(bundle as string, manifest);
+		this.save(url, bundle as string, manifest);
 		this.logger.debug('Loading...');
 
 		const existing = this.entities.get(manifest.id);
@@ -232,7 +233,7 @@ class Manager extends EventEmitter {
 		return bundle;
 	}
 
-	save(bundle: string, manifest: Manifest) {
+	save(url: string, bundle: string, manifest: Manifest) {
 		DCDFileManager.writeFile('documents', `${this.path}/${manifest.id}/bundle.${this.extension}`, bundle, 'utf8');
 		DCDFileManager.writeFile('documents', `${this.path}/${manifest.id}/manifest.json`, JSON.stringify(manifest, null, 2), 'utf8');
 	}
